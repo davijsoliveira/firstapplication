@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 //var w = 30
 
@@ -49,6 +52,8 @@ func humano(g gente) {
 
 }
 
+var wg sync.WaitGroup
+
 func main() {
 	//x := 13
 	//d = 10
@@ -82,6 +87,28 @@ func main() {
 	humano(davi)
 	humano(junio)
 
+	c := make(chan int)
+	wg.Add(1)
+	go meuloop(10, c)
+	wg.Add(1)
+	go prints(c)
+	wg.Wait()
+
+}
+
+func meuloop(t int, s chan<- int) {
+	for i := 0; i < t; i++ {
+		s <- i
+	}
+	wg.Done()
+	close(s)
+}
+
+func prints(r <-chan int) {
+	for v := range r {
+		fmt.Println("Recebido do canal:", v)
+	}
+	wg.Done()
 }
 
 //func firstFunc(x int) {
